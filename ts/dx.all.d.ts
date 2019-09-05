@@ -810,7 +810,7 @@ declare module DevExpress.ui {
         /** @name GridBase.Options.highlightChanges */
         highlightChanges?: boolean;
         /** @name GridBase.Options.keyboardNavigation */
-        keyboardNavigation?: { editOnKeyPress?: boolean, enterKeyAction?: 'startEdit' | 'moveFocus', enterKeyDirection?: 'none' | 'column' | 'row' };
+        keyboardNavigation?: { editOnKeyPress?: boolean, enabled?: boolean, enterKeyAction?: 'startEdit' | 'moveFocus', enterKeyDirection?: 'none' | 'column' | 'row' };
         /** @name GridBase.Options.loadPanel */
         loadPanel?: { enabled?: boolean | 'auto', height?: number, indicatorSrc?: string, shading?: boolean, shadingColor?: string, showIndicator?: boolean, showPane?: boolean, text?: string, width?: number };
         /** @name GridBase.Options.noDataText */
@@ -2721,12 +2721,18 @@ declare module DevExpress.ui {
     }
     /** @name dxGantt.Options */
     export interface dxGanttOptions extends WidgetOptions<dxGantt> {
+        /** @name dxGantt.Options.allowSelection */
+        allowSelection?: boolean;
         /** @name dxGantt.Options.dependencies */
         dependencies?: { dataSource?: Array<any> | DevExpress.data.DataSource | DevExpress.data.DataSourceOptions, keyExpr?: string | ((data: any) => any), predecessorIdExpr?: string | ((data: any) => any), successorIdExpr?: string | ((data: any) => any), typeExpr?: string | ((data: any) => any) };
+        /** @name dxGantt.Options.onSelectionChanged */
+        onSelectionChanged?: ((e: { component?: dxGantt, element?: DevExpress.core.dxElement, model?: any, selectedRowKey?: any }) => any);
         /** @name dxGantt.Options.resourceAssignments */
         resourceAssignments?: { dataSource?: Array<any> | DevExpress.data.DataSource | DevExpress.data.DataSourceOptions, keyExpr?: string | ((data: any) => any), resourceIdExpr?: string | ((data: any) => any), taskIdExpr?: string | ((data: any) => any) };
         /** @name dxGantt.Options.resources */
         resources?: { dataSource?: Array<any> | DevExpress.data.DataSource | DevExpress.data.DataSourceOptions, keyExpr?: string | ((data: any) => any), textExpr?: string | ((data: any) => any) };
+        /** @name dxGantt.Options.selectedRowKey */
+        selectedRowKey?: any;
         /** @name dxGantt.Options.showResources */
         showResources?: boolean;
         /** @name dxGantt.Options.taskTitlePosition */
@@ -2846,12 +2852,12 @@ declare module DevExpress.ui {
         /** @name dxHtmlEditorToolbar.container */
         container?: string | Element | JQuery;
         /** @name dxHtmlEditorToolbar.items */
-        items?: Array<dxHtmlEditorToolbarItem | string>;
+        items?: Array<dxHtmlEditorToolbarItem | 'background' | 'bold' | 'color' | 'italic' | 'link' | 'image' | 'strike' | 'subscript' | 'superscript' | 'underline' | 'blockquote' | 'header' | 'increaseIndent' | 'decreaseIndent' | 'orderedList' | 'bulletList' | 'alignLeft' | 'alignCenter' | 'alignRight' | 'alignJustify' | 'codeBlock' | 'variable' | 'separator' | 'undo' | 'redo' | 'clear'>;
     }
     /** @name dxHtmlEditorToolbarItem */
     export interface dxHtmlEditorToolbarItem extends dxToolbarItem {
         /** @name dxHtmlEditorToolbarItem.formatName */
-        formatName?: string;
+        formatName?: 'background' | 'bold' | 'color' | 'font' | 'italic' | 'link' | 'size' | 'strike' | 'script' | 'underline' | 'blockquote' | 'header' | 'indent' | 'list' | 'align' | 'code-block';
         /** @name dxHtmlEditorToolbarItem.formatValues */
         formatValues?: Array<string | number | boolean>;
         /** @name dxHtmlEditorToolbarItem.location */
@@ -5727,6 +5733,8 @@ declare module DevExpress.viz {
     interface BaseChartTooltip extends BaseWidgetTooltip {
         /** @name BaseChart.Options.tooltip.argumentFormat */
         argumentFormat?: DevExpress.ui.format;
+        /** @name BaseChart.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((pointInfo: any, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name BaseChart.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((pointInfo: any) => any);
     }
@@ -5848,6 +5856,8 @@ declare module DevExpress.viz {
     }
     /** @name BaseGauge.Options.tooltip */
     interface BaseGaugeTooltip extends BaseWidgetTooltip {
+        /** @name BaseGauge.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((scaleValue: { value?: number, valueText?: string }, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name BaseGauge.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((scaleValue: { value?: number, valueText?: string }) => any);
     }
@@ -5923,6 +5933,8 @@ declare module DevExpress.viz {
     }
     /** @name BaseSparkline.Options.tooltip */
     interface BaseSparklineTooltip extends BaseWidgetTooltip {
+        /** @name BaseSparkline.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((pointsInfo: any, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name BaseSparkline.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((pointsInfo: any) => any);
         /** @name BaseSparkline.Options.tooltip.enabled */
@@ -6471,6 +6483,8 @@ declare module DevExpress.viz {
     }
     /** @name dxBarGauge.Options.tooltip */
     export interface dxBarGaugeTooltip extends BaseWidgetTooltip {
+        /** @name dxBarGauge.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((scaleValue: { value?: number, valueText?: string, index?: number }, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name dxBarGauge.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((scaleValue: { value?: number, valueText?: string, index?: number }) => any);
     }
@@ -7133,6 +7147,8 @@ declare module DevExpress.viz {
         textOverflow?: 'ellipsis' | 'hide' | 'none';
         /** @name dxChartCommonAnnotationConfig.tooltipEnabled */
         tooltipEnabled?: boolean;
+        /** @name dxChartCommonAnnotationConfig.tooltipTemplate */
+        tooltipTemplate?: DevExpress.core.template | ((annotationItem: dxChartAnnotationConfig | any, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name dxChartCommonAnnotationConfig.type */
         type?: 'text' | 'image' | 'custom';
         /** @name dxChartCommonAnnotationConfig.value */
@@ -8119,6 +8135,8 @@ declare module DevExpress.viz {
     }
     /** @name dxFunnel.Options.tooltip */
     export interface dxFunnelTooltip extends BaseWidgetTooltip {
+        /** @name dxFunnel.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((info: { item?: dxFunnelItem, value?: number, valueText?: string, percent?: number, percentText?: string }, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name dxFunnel.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((info: { item?: dxFunnelItem, value?: number, valueText?: string, percent?: number, percentText?: string }) => any);
     }
@@ -8921,6 +8939,10 @@ declare module DevExpress.viz {
         customizeNodeTooltip?: ((info: { title?: string, weightIn?: number, weightOut?: number }) => any);
         /** @name dxSankey.Options.tooltip.enabled */
         enabled?: boolean;
+        /** @name dxSankey.Options.tooltip.linkTooltipTemplate */
+        linkTooltipTemplate?: DevExpress.core.template | ((info: { source?: string, target?: string, weight?: number }, element: DevExpress.core.dxElement) => string | Element | JQuery);
+        /** @name dxSankey.Options.tooltip.nodeTooltipTemplate */
+        nodeTooltipTemplate?: DevExpress.core.template | ((info: { title?: string, weightIn?: number, weightOut?: number }) => string | Element | JQuery);
     }
     /** @name dxSankey */
     export class dxSankey extends BaseWidget {
@@ -9082,6 +9104,8 @@ declare module DevExpress.viz {
     }
     /** @name dxTreeMap.Options.tooltip */
     export interface dxTreeMapTooltip extends BaseWidgetTooltip {
+        /** @name dxTreeMap.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((info: { value?: number, valueText?: string, node?: dxTreeMapNode }, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name dxTreeMap.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((info: { value?: number, valueText?: string, node?: dxTreeMapNode }) => any);
     }
@@ -9213,6 +9237,8 @@ declare module DevExpress.viz {
     }
     /** @name dxVectorMap.Options.tooltip */
     export interface dxVectorMapTooltip extends BaseWidgetTooltip {
+        /** @name dxVectorMap.Options.tooltip.contentTemplate */
+        contentTemplate?: DevExpress.core.template | ((info: MapLayerElement, element: DevExpress.core.dxElement) => string | Element | JQuery);
         /** @name dxVectorMap.Options.tooltip.customizeTooltip */
         customizeTooltip?: ((info: MapLayerElement) => any);
     }

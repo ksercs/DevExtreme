@@ -6773,6 +6773,35 @@ QUnit.test("calculateFilterExpression should not be called infinite times if it 
     }
 });
 
+// T802967
+QUnit.test("getCombinedFilter should work correctly if filterPanel is visible and calculateFilterExpression returns function", function(assert) {
+    var data = [];
+    for(let i = 0; i < 21; i++) {
+        data.push({ test: i });
+    }
+    var calculateFilterExpressionCallCount = 0,
+        grid = createDataGrid({
+            loadingTimeout: undefined,
+            dataSource: data,
+            filterPanel: { visible: true },
+            columns: [{
+                selectedFilterOperation: "=",
+                filterValue: 0,
+                dataField: "test",
+                calculateFilterExpression: function() {
+                    calculateFilterExpressionCallCount++;
+                    return function() {
+                        return true;
+                    };
+                }
+            }]
+        });
+
+    assert.equal(calculateFilterExpressionCallCount, 4, "calculateFilterExpression call count");
+    assert.ok(grid.getCombinedFilter(), "combined filter");
+    assert.equal(calculateFilterExpressionCallCount, 5, "calculateFilterExpression call count");
+});
+
 // T364210
 QUnit.test("Load count on start when EdmLiteral in calculatedFilterExpression is used and scrolling mode is virtual", function(assert) {
     var loadCallCount = 0,
@@ -13831,6 +13860,36 @@ QUnit.test("Repaint rows", function(assert) {
     assert.strictEqual($(dataGrid.getCellElement(2, 0)).text(), "test6", "third row - value of the first cell");
 });
 
+QUnit.test("Row should be updated via watchMethod after detail row expand (T810967)", function(assert) {
+    // arrange
+    var watchCallbacks = [];
+    var dataSource = [{ id: 1, value: 1 }, { id: 2, value: 2 }];
+    var dataGrid = createDataGrid({
+        loadingTimeout: undefined,
+        dataSource: dataSource,
+        keyExpr: "id",
+        integrationOptions: {
+            watchMethod: function(fn, callback, options) {
+                watchCallbacks.push(callback);
+                return function() {
+                };
+            },
+        },
+        masterDetail: {
+            enabled: true
+        },
+        columns: ["id", "value"]
+    });
+
+    // act
+    dataGrid.expandRow(1);
+    dataSource[1].value = 666;
+    watchCallbacks[1]();
+
+    // assert
+    assert.equal($(dataGrid.getCellElement(2, 2)).text(), 666, "value is updated");
+});
+
 QUnit.test("Repaint rows with repaintChangesOnly", function(assert) {
     // arrange
     var $rowElements,
@@ -16552,6 +16611,26 @@ QUnit.testInActiveWindow("Focus on edited cell after the edit button in command 
 
     // assert
     assert.ok($(dataGrid.getRowElement(0)).find(".dx-editor-cell").eq(0).hasClass("dx-focused"), "first editable cell is active");
+});
+
+QUnit.test("Test mutual influence of the useKeyboard and keyboardNavigation.enabled options", function(assert) {
+    // arrange, act
+    var dataGrid = createDataGrid();
+
+    // assert
+    assert.ok(dataGrid._deprecatedOptions.useKeyboard, "useKeyboard deprecated");
+    assert.equal(dataGrid.option("useKeyboard"), true);
+    assert.equal(dataGrid.option("keyboardNavigation.enabled"), true);
+
+    // act
+    dataGrid.option("useKeyboard", false);
+    // assert
+    assert.equal(dataGrid.option("keyboardNavigation.enabled"), false, "keyboardNavigation.enabled mapping");
+
+    // act
+    dataGrid.option("keyboardNavigation.enabled", true);
+    // assert
+    assert.equal(dataGrid.option("useKeyboard"), true, "useKeyboard mapping");
 });
 
 QUnit.module("Editing", baseModuleConfig);
