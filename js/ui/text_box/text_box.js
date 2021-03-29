@@ -63,6 +63,10 @@ const TextBox = TextEditor.inherit({
         }
     },
 
+    _useTemplates: function() {
+        return false;
+    },
+
     _renderProps: function() {
         this.callBase();
         this._toggleMaxLengthProp();
