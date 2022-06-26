@@ -536,7 +536,7 @@ const Gallery = CollectionWidget.inherit({
     },
 
     _maxContainerOffset: function() {
-        return -this._maxItemWidth() * (this._itemsCount() - this._itemsPerPage()) * this._offsetDirection();
+        return -this._maxItemWidth() * (this._itemsCount() - 1) * this._offsetDirection();
     },
 
     _maxItemWidth: function() {
@@ -957,7 +957,7 @@ const Gallery = CollectionWidget.inherit({
         return index;
     },
 
-    _fitIndex: function(index) {
+    _fitIndex: function(index, moveOnFocus = false) {
         if(!this.option('loop')) {
             return index;
         }
@@ -969,7 +969,15 @@ const Gallery = CollectionWidget.inherit({
         }
 
         if(index >= itemsCount) {
-            index = itemsCount - index;
+            if(moveOnFocus) {
+                if(index === itemsCount) {
+                    index = 0;
+                } else {
+                    index = -1;
+                }
+            } else {
+                index = itemsCount - index;
+            }
         }
 
         index = index % itemsCount;
@@ -1042,7 +1050,7 @@ const Gallery = CollectionWidget.inherit({
         this.callBase.apply(this, arguments);
 
         const index = this.itemElements().index($(this.option('focusedElement')));
-        this.goToItem(index, this.option('animationEnabled'));
+        this.goToItem(index, this.option('animationEnabled'), true);
     },
 
     _visibilityChanged: function(visible) {
@@ -1060,9 +1068,9 @@ const Gallery = CollectionWidget.inherit({
 
         if(this.option('loop') && !this._needLongMove && this._goToGhostItem) {
             if(this._isItemOnFirstPage(newIndex) && this._isItemOnLastPage(lastIndex)) {
-                indexOffset = -this._itemsPerPage();
+                indexOffset = -1;
             } else if(this._isItemOnLastPage(newIndex) && this._isItemOnFirstPage(lastIndex)) {
-                indexOffset = this._itemsPerPage();
+                indexOffset = 1;
             }
 
             this._goToGhostItem = false;
@@ -1132,7 +1140,7 @@ const Gallery = CollectionWidget.inherit({
         }
     },
 
-    goToItem: function(itemIndex, animation) {
+    goToItem: function(itemIndex, animation, moveOnFocus = false) {
         const selectedIndex = this.option('selectedIndex');
         const itemsCount = this._itemsCount();
 
@@ -1140,7 +1148,7 @@ const Gallery = CollectionWidget.inherit({
             this._animationOverride = animation;
         }
 
-        itemIndex = this._fitIndex(itemIndex);
+        itemIndex = this._fitIndex(itemIndex, moveOnFocus);
 
         this._deferredAnimate = new Deferred();
 
